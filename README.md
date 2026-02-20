@@ -1,2 +1,4 @@
 # lakeshoreCondoManagement
 Anmol Kashyap, Seher Ugurlu, Serena Nina Omondi, Peter Morgante
+Problem: Small property management companies handle tenant applications, leases, rent tracking, and maintenance requests using emails/spreadsheets, which causes lost records, slow approvals, and no accountability.
+Solution: A secure web app that lets tenants apply and submit maintenance tickets, while managers approve applications, manage leases, and track payments. Maintenance staff update ticket progress. The system enforces role-based access and business rules (ex: only managers can approve leases; tenants can only see their own leases/tickets).
