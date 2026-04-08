@@ -20,7 +20,7 @@ app.use(morgan("dev"));
 
 app.get("/", (req, res) => {
   res.json({
-    message: "Property Rental Management API (Phase 1)",
+    message: "Property Rental Management API (Phase 2)",
     status: "running"
   });
 });

@@ -12,4 +12,7 @@ const propertySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+propertySchema.index({ city: 1, isActive: 1 });
+propertySchema.index({ createdBy: 1, createdAt: -1 });
+
 module.exports = mongoose.model("Property", propertySchema);

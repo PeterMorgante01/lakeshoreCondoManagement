@@ -12,4 +12,7 @@ const leaseSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+leaseSchema.index({ tenant: 1, isActive: 1 });
+leaseSchema.index({ property: 1, isActive: 1 });
+
 module.exports = mongoose.model("Lease", leaseSchema);

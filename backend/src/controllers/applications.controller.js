@@ -1,13 +1,81 @@
+const mongoose = require("mongoose");
+
+const Application = require("../models/Application");
+const Property = require("../models/Property");
+const { ROLES, APPLICATION_STATUS } = require("../utils/constants");
 const { ok, created } = require("../utils/response");
 
-exports.createApplication = (req, res) => {
-  created(res, { note: "Create application placeholder (Phase 1)" });
+exports.createApplication = async (req, res, next) => {
+  try {
+    const { property, monthlyIncome, message } = req.body;
+
+    if (!mongoose.isValidObjectId(property)) {
+      return res.status(400).json({ error: "Valid property id is required" });
+    }
+
+    if (monthlyIncome === undefined || Number(monthlyIncome) < 0) {
+      return res.status(400).json({ error: "Valid monthlyIncome is required" });
+    }
+
+    const propertyExists = await Property.findById(property);
+    if (!propertyExists) {
+      return res.status(404).json({ error: "Property not found" });
+    }
+
+    const application = await Application.create({
+      tenant: req.user._id,
+      property,
+      monthlyIncome,
+      message
+    });
+
+    return created(res, { application }, "Application created");
+  } catch (err) {
+    return next(err);
+  }
 };
 
-exports.getApplications = (req, res) => {
-  ok(res, { note: "List applications placeholder (Phase 1)" });
+exports.getApplications = async (req, res, next) => {
+  try {
+    const query = {};
+    if (req.user.role === ROLES.TENANT) {
+      query.tenant = req.user._id;
+    }
+
+    const applications = await Application.find(query)
+      .populate("tenant", "fullName email role")
+      .populate("property", "title address city rentAmount")
+      .sort({ createdAt: -1 });
+
+    return ok(res, { count: applications.length, applications });
+  } catch (err) {
+    return next(err);
+  }
 };
 
-exports.updateApplicationStatus = (req, res) => {
-  ok(res, { id: req.params.id, note: "Update application status placeholder" });
+exports.updateApplicationStatus = async (req, res, next) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({ error: "Invalid application id" });
+    }
+
+    const { status } = req.body;
+    if (!Object.values(APPLICATION_STATUS).includes(status)) {
+      return res.status(400).json({ error: "Invalid application status" });
+    }
+
+    const application = await Application.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true, runValidators: true }
+    );
+
+    if (!application) {
+      return res.status(404).json({ error: "Application not found" });
+    }
+
+    return ok(res, { application }, "Application status updated");
+  } catch (err) {
+    return next(err);
+  }
 };

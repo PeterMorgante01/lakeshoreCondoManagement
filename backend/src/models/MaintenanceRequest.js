@@ -17,4 +17,7 @@ const maintenanceRequestSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+maintenanceRequestSchema.index({ tenant: 1, createdAt: -1 });
+maintenanceRequestSchema.index({ status: 1, assignedTo: 1 });
+
 module.exports = mongoose.model("MaintenanceRequest", maintenanceRequestSchema);

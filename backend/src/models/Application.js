@@ -16,4 +16,7 @@ const applicationSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+applicationSchema.index({ tenant: 1, createdAt: -1 });
+applicationSchema.index({ property: 1, status: 1 });
+
 module.exports = mongoose.model("Application", applicationSchema);
