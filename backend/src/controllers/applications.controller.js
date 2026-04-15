@@ -4,6 +4,12 @@ const Application = require("../models/Application");
 const Property = require("../models/Property");
 const { ROLES, APPLICATION_STATUS } = require("../utils/constants");
 const { ok, created } = require("../utils/response");
+const {
+  buildIdentityQuery,
+  buildIdentitySnapshot,
+  getLegacyUserId,
+  presentIdentity
+} = require("../utils/authIdentity");
 
 exports.createApplication = async (req, res, next) => {
   try {
@@ -23,7 +29,8 @@ exports.createApplication = async (req, res, next) => {
     }
 
     const application = await Application.create({
-      tenant: req.user._id,
+      tenant: getLegacyUserId(req.user),
+      tenantIdentity: buildIdentitySnapshot(req.user),
       property,
       monthlyIncome,
       message
@@ -37,17 +44,26 @@ exports.createApplication = async (req, res, next) => {
 
 exports.getApplications = async (req, res, next) => {
   try {
-    const query = {};
+    let query = {};
     if (req.user.role === ROLES.TENANT) {
-      query.tenant = req.user._id;
+      query = buildIdentityQuery("tenantIdentity", req.user, "tenant");
     }
 
     const applications = await Application.find(query)
       .populate("tenant", "fullName email role")
       .populate("property", "title address city rentAmount")
+      .lean()
       .sort({ createdAt: -1 });
 
-    return ok(res, { count: applications.length, applications });
+    const normalizedApplications = applications.map((application) => ({
+      ...application,
+      tenant: presentIdentity(application.tenantIdentity, application.tenant)
+    }));
+
+    return ok(res, {
+      count: normalizedApplications.length,
+      applications: normalizedApplications
+    });
   } catch (err) {
     return next(err);
   }

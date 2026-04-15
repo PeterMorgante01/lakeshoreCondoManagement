@@ -4,14 +4,21 @@
   "main": "src/server.js",
   "scripts": {
     "dev": "nodemon src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "keycloak:token": "node scripts/get-keycloak-token.js",
+    "verify:keycloak-live": "node scripts/smoke-keycloak-live.js",
+    "verify:jwt": "node scripts/smoke-jwt.js",
+    "verify:keycloak-data": "node scripts/verify-keycloak-identities.js",
+    "verify:submission": "npm run verify:jwt && npm run verify:keycloak-data"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "express-session": "^1.19.0",
     "jsonwebtoken": "^9.0.3",
+    "keycloak-connect": "^26.1.1",
     "mongoose": "^8.5.4",
     "morgan": "^1.10.0"
   },

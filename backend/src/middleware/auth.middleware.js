@@ -1,5 +1,9 @@
 const jwt = require("jsonwebtoken");
+
 const User = require("../models/User");
+const { isKeycloakEnabled } = require("../config/keycloak");
+const { keycloakProtect } = require("./keycloak.middleware");
+const { toRequestUser } = require("../utils/authIdentity");
 
 function extractToken(req) {
   const authHeader = req.headers.authorization || "";
@@ -13,24 +17,33 @@ function extractToken(req) {
 }
 
 async function protect(req, res, next) {
+  if (isKeycloakEnabled()) {
+    return keycloakProtect(req, res, next);
+  }
+
   try {
     const token = extractToken(req);
-
     if (!token) {
       return res.status(401).json({ error: "Authentication required" });
     }
 
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    try {
+      const payload = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findById(payload.sub).select("fullName email role");
 
-    const user = await User.findById(payload.sub).select("-passwordHash");
-    if (!user) {
-      return res.status(401).json({ error: "Invalid token user" });
+      if (!user) {
+        return res.status(401).json({ error: "Invalid token user" });
+      }
+
+      req.user = toRequestUser(user);
+      req.authSource = "jwt";
+      return next();
+    } catch (jwtErr) {
+      return res.status(401).json({ error: "Invalid or expired token" });
     }
-
-    req.user = user;
-    return next();
   } catch (err) {
-    return res.status(401).json({ error: "Invalid or expired token" });
+    console.error("Authentication error:", err.message);
+    return res.status(401).json({ error: "Authentication failed" });
   }
 }
 
@@ -48,4 +61,14 @@ function authorize(...allowedRoles) {
   };
 }
 
-module.exports = { protect, authorize };
+function requireJwtMode(req, res, next) {
+  if (isKeycloakEnabled()) {
+    return res.status(503).json({
+      error: "This endpoint is unavailable when AUTH_MODE=keycloak"
+    });
+  }
+
+  return next();
+}
+
+module.exports = { protect, authorize, requireJwtMode };

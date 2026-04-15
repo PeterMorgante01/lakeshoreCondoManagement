@@ -2,14 +2,13 @@ require("dotenv").config();
 
 const app = require("./app");
 const connectDB = require("./config/db");
+const { validateAuthConfiguration } = require("./config/keycloak");
 
 const PORT = process.env.PORT || 5000;
 
 (async () => {
   try {
-    if (!process.env.JWT_SECRET) {
-      throw new Error("JWT_SECRET is required for Phase 2");
-    }
+    validateAuthConfiguration();
 
     await connectDB();
 

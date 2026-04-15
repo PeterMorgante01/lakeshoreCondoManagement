@@ -1,0 +1,129 @@
+{
+  "id": "lakeshore",
+  "realm": "lakeshore",
+  "enabled": true,
+  "displayName": "Lakeshore Condo Management",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "rememberMe": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "tenant",
+        "description": "Tenant access for the Lakeshore platform",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "lakeshore"
+      },
+      {
+        "name": "manager",
+        "description": "Manager access for the Lakeshore platform",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "lakeshore"
+      },
+      {
+        "name": "maintenance",
+        "description": "Maintenance access for the Lakeshore platform",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "lakeshore"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "property-rental-app",
+      "name": "Lakeshore Backend",
+      "description": "OIDC client for the Lakeshore Condo Management backend",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "bearerOnly": false,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "implicitFlowEnabled": false,
+      "fullScopeAllowed": true,
+      "secret": "lakeshore-keycloak-secret-2026",
+      "redirectUris": [
+        "http://localhost:3000/*",
+        "http://localhost:5000/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000",
+        "http://localhost:5000"
+      ],
+      "defaultClientScopes": [
+        "profile",
+        "email",
+        "roles",
+        "web-origins"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "manager1",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Maya",
+      "lastName": "Manager",
+      "email": "manager1@lakeshore.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Manager123!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "manager"
+      ]
+    },
+    {
+      "username": "tenant1",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Tina",
+      "lastName": "Tenant",
+      "email": "tenant1@lakeshore.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Tenant123!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "tenant"
+      ]
+    },
+    {
+      "username": "maintenance1",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Miles",
+      "lastName": "Maintenance",
+      "email": "maintenance1@lakeshore.local",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Maint123!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "maintenance"
+      ]
+    }
+  ]
+}

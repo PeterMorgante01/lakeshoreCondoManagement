@@ -1,8 +1,10 @@
 const mongoose = require("mongoose");
+const identitySnapshotSchema = require("./schemas/identitySnapshot");
 
 const leaseSchema = new mongoose.Schema(
   {
-    tenant: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    tenant: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
+    tenantIdentity: { type: identitySnapshotSchema, required: true },
     property: { type: mongoose.Schema.Types.ObjectId, ref: "Property", required: true },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
@@ -13,6 +15,7 @@ const leaseSchema = new mongoose.Schema(
 );
 
 leaseSchema.index({ tenant: 1, isActive: 1 });
+leaseSchema.index({ "tenantIdentity.subject": 1, "tenantIdentity.authSource": 1, isActive: 1 });
 leaseSchema.index({ property: 1, isActive: 1 });
 
 module.exports = mongoose.model("Lease", leaseSchema);

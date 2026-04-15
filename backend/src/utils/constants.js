@@ -4,6 +4,16 @@ const ROLES = {
   MAINTENANCE: "MAINTENANCE"
 };
 
+const AUTH_MODES = {
+  JWT: "jwt",
+  KEYCLOAK: "keycloak"
+};
+
+const AUTH_SOURCES = {
+  JWT: "jwt",
+  KEYCLOAK: "keycloak"
+};
+
 const APPLICATION_STATUS = {
   SUBMITTED: "SUBMITTED",
   UNDER_REVIEW: "UNDER_REVIEW",
@@ -24,4 +34,11 @@ const PAYMENT_METHODS = {
   CASH: "CASH"
 };
 
-module.exports = { ROLES, APPLICATION_STATUS, MAINTENANCE_STATUS, PAYMENT_METHODS };
+module.exports = {
+  ROLES,
+  AUTH_MODES,
+  AUTH_SOURCES,
+  APPLICATION_STATUS,
+  MAINTENANCE_STATUS,
+  PAYMENT_METHODS
+};

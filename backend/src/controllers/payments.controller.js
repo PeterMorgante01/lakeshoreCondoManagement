@@ -4,6 +4,7 @@ const Payment = require("../models/Payment");
 const Lease = require("../models/Lease");
 const { ROLES } = require("../utils/constants");
 const { ok, created } = require("../utils/response");
+const { buildIdentityQuery, presentIdentity } = require("../utils/authIdentity");
 
 exports.createPayment = async (req, res, next) => {
   try {
@@ -40,7 +41,9 @@ exports.getPayments = async (req, res, next) => {
     const leaseFilter = {};
 
     if (req.user.role === ROLES.TENANT) {
-      const tenantLeases = await Lease.find({ tenant: req.user._id }).select("_id");
+      const tenantLeases = await Lease.find(
+        buildIdentityQuery("tenantIdentity", req.user, "tenant")
+      ).select("_id");
       leaseFilter.lease = { $in: tenantLeases.map((lease) => lease._id) };
     }
 
@@ -48,13 +51,24 @@ exports.getPayments = async (req, res, next) => {
       .populate({
         path: "lease",
         populate: [
-          { path: "tenant", select: "fullName email" },
+          { path: "tenant", select: "fullName email role" },
           { path: "property", select: "title address city" }
         ]
       })
+      .lean()
       .sort({ paidAt: -1 });
 
-    return ok(res, { count: payments.length, payments });
+    const normalizedPayments = payments.map((payment) => ({
+      ...payment,
+      lease: payment.lease
+        ? {
+            ...payment.lease,
+            tenant: presentIdentity(payment.lease.tenantIdentity, payment.lease.tenant)
+          }
+        : null
+    }));
+
+    return ok(res, { count: normalizedPayments.length, payments: normalizedPayments });
   } catch (err) {
     return next(err);
   }

@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const Property = require("../models/Property");
 const { ok, created } = require("../utils/response");
+const { buildIdentitySnapshot, getLegacyUserId } = require("../utils/authIdentity");
 
 exports.createProperty = async (req, res, next) => {
   try {
@@ -17,7 +18,8 @@ exports.createProperty = async (req, res, next) => {
       city,
       rentAmount,
       isActive,
-      createdBy: req.user._id
+      createdBy: getLegacyUserId(req.user),
+      createdByIdentity: buildIdentitySnapshot(req.user)
     });
 
     return created(res, { property }, "Property created");

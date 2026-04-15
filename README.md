@@ -1,185 +1,247 @@
 # Lakeshore Condo Management
 
-Full-stack project for managing residential rental operations with secure role-based access control.
+Secure backend for a condo and rental operations platform built for the Modern Web Technologies course project.
 
-## Team
+## Project Status
 
-- Anmol Kashyap
-- Seher Ugurlu
-- Serena Nina Omondi
-- Peter Morgante
-
-## Project Overview
-
-Small property management companies often track tenant applications, leases, payments, and maintenance requests in spreadsheets and email threads. This leads to missing records, delayed actions, and weak accountability.
-
-Lakeshore Condo Management solves this with a secure web platform that centralizes rental workflows and enforces business rules at the backend.
+- Phase I: Completed
+- Phase II: Completed
+- Phase II+ Keycloak delegated authentication: Completed
+- Phase III frontend and deployment: Not started
 
 ## Business Case
 
-### Problem
-- Fragmented communication and manual recordkeeping.
-- No reliable approval workflow.
-- Poor visibility into payment and maintenance status.
+Small property managers often rely on spreadsheets, email, and ad hoc notes to track listings, tenant applications, leases, maintenance, and payments. That leads to missing records, delayed approvals, weak accountability, and inconsistent access control.
 
-### Solution
-- Tenants can apply for properties and submit maintenance requests.
-- Managers can approve/reject applications, create leases, and record payments.
-- Maintenance staff can update and track maintenance ticket status.
-- Role-based authorization ensures users can only perform permitted actions.
+Lakeshore Condo Management centralizes those workflows in a single backend that enforces validation, role-based access control, and persistent data management at the API and database layers.
 
-## Current Project Status
+## Technology Stack
 
-| Phase | Status | Notes |
-|---|---|---|
-| Phase 1 - Backend Foundation | Completed | Architecture, routing, initial models, repo setup |
-| Phase 2 - Database + Security Integration | Completed | MongoDB integration, JWT auth, role-based access, backend validation |
-| Phase 3 - Frontend + Deployment | Not started | Planned for next stage |
-
-## Tech Stack
-
-### Backend
 - Node.js
 - Express.js
 - MongoDB
 - Mongoose
-- JSON Web Tokens (jsonwebtoken)
+- JSON Web Tokens
 - bcryptjs
-- dotenv
-- morgan
-- cors
-
-### Tooling
-- Postman (API testing)
-- GitHub (version control)
+- Postman
+- GitHub
+- Keycloak for delegated authentication mode
 
 ## Architecture
 
-The backend follows a layered structure:
+The backend is organized into:
 
-- `routes` for endpoint definitions
-- `controllers` for request handling and business logic
-- `models` for MongoDB schemas and relationships
-- `middleware` for authentication, authorization, not-found, and centralized errors
-- `config` for database connection and environment setup
+- `src/routes` for REST endpoint definitions
+- `src/controllers` for request handling and business logic
+- `src/models` for MongoDB schemas
+- `src/middleware` for authentication, authorization, and centralized errors
+- `src/config` for database and authentication mode configuration
+- `src/utils` for reusable response, identity, and mapping helpers
 
-## Core Features Implemented (Phase 1 + Phase 2)
+## Authentication Modes
 
-### Authentication and Authorization
-- User registration with password hashing
-- Login with JWT token issuance
-- Protected profile endpoint (`/api/auth/me`)
-- Role-based route protection (TENANT, MANAGER, MAINTENANCE)
+### JWT Mode
 
-### Data Workflows
-- Property listing and manager-controlled property management
-- Tenant application creation and manager status updates
-- Lease creation by managers and role-scoped lease viewing
-- Tenant maintenance request submission and authorized status updates
-- Payment recording by managers and scoped payment visibility
+- `AUTH_MODE=jwt`
+- Local users are stored in MongoDB
+- Public self-registration is limited to `TENANT`
+- Managers can create staff accounts securely through `POST /api/auth/users`
 
-### Security and Validation
-- Passwords hashed using bcryptjs
-- JWT verification middleware for protected APIs
-- Backend business-rule enforcement and ownership checks
-- Centralized error handling with validation and duplicate-key mapping
-- Required environment variables for secure startup
+### Keycloak Mode
 
-### Database Design
-- 6 MongoDB collections:
-	- User
-	- Property
-	- Application
-	- Lease
-	- MaintenanceRequest
-	- Payment
-- Schema validation and default values
-- Inter-collection references via ObjectId
-- Indexes added for key query paths
+- `AUTH_MODE=keycloak`
+- Authentication and authorization are delegated to Keycloak
+- API access tokens are verified against Keycloak JWKS
+- Local `/api/auth/register` and `/api/auth/login` endpoints are disabled
+- Keycloak users are never provisioned into the `User` collection
+
+## Business Workflows Implemented
+
+- User authentication and protected profile access
+- Manager-controlled property creation and updates
+- Tenant application creation
+- Manager application approval and rejection
+- Lease creation from an approved application or an explicit tenant identity
+- Tenant maintenance request creation
+- Manager or maintenance staff request updates
+- Manager payment recording
+- Tenant-scoped lease and payment visibility
+
+## Data Model
+
+Collections:
+
+- `users`
+- `properties`
+- `applications`
+- `leases`
+- `maintenancerequests`
+- `payments`
+
+Important design choice:
+
+- JWT users can still be referenced by local MongoDB user ids
+- Keycloak users are stored as identity snapshots on business records
+- This keeps workflows functional without provisioning external users into MongoDB
 
 ## API Summary
 
-Implemented REST endpoints: 17 total
+Implemented endpoints: 23
 
 ### Auth
+
 - `POST /api/auth/register`
 - `POST /api/auth/login`
-- `GET /api/auth/me` (protected)
+- `POST /api/auth/users`
+- `GET /api/auth/me`
+
+### Keycloak
+
+- `GET /api/keycloak/info`
+- `GET /api/keycloak/me`
+- `GET /api/keycloak/verify-token`
+- `POST /api/keycloak/logout`
 
 ### Properties
-- `POST /api/properties` (manager only)
+
+- `POST /api/properties`
 - `GET /api/properties`
 - `GET /api/properties/:id`
-- `PATCH /api/properties/:id` (manager only)
+- `PATCH /api/properties/:id`
 
 ### Applications
-- `POST /api/applications` (tenant only)
-- `GET /api/applications` (protected)
-- `PATCH /api/applications/:id/status` (manager only)
+
+- `POST /api/applications`
+- `GET /api/applications`
+- `PATCH /api/applications/:id/status`
 
 ### Leases
-- `POST /api/leases` (manager only)
-- `GET /api/leases` (protected)
+
+- `POST /api/leases`
+- `GET /api/leases`
 
 ### Maintenance
-- `POST /api/maintenance` (tenant only)
-- `GET /api/maintenance` (protected)
-- `PATCH /api/maintenance/:id/status` (manager or maintenance only)
+
+- `POST /api/maintenance`
+- `GET /api/maintenance`
+- `PATCH /api/maintenance/:id/status`
 
 ### Payments
-- `POST /api/payments` (manager only)
-- `GET /api/payments` (protected)
 
-## Getting Started (Backend)
+- `POST /api/payments`
+- `GET /api/payments`
 
-### 1. Install dependencies
+## Environment Setup
+
+Create `backend/.env` from `backend/.env.example`.
+
+### JWT Mode Example
+
+```env
+AUTH_MODE=jwt
+PORT=5000
+MONGO_URI=mongodb://127.0.0.1:27017/lakeshoreCondoManagement
+JWT_SECRET=change_me
+JWT_EXPIRES_IN=7d
+NODE_ENV=development
+```
+
+### Keycloak Mode Example
+
+```env
+AUTH_MODE=keycloak
+PORT=5000
+MONGO_URI=mongodb://127.0.0.1:27017/lakeshoreCondoManagement
+KEYCLOAK_AUTH_SERVER_URL=http://localhost:8080
+KEYCLOAK_REALM=property-rental
+KEYCLOAK_CLIENT_ID=property-rental-app
+KEYCLOAK_CLIENT_SECRET=change_me
+SESSION_SECRET=change_me
+NODE_ENV=development
+```
+
+## Run
+
 ```bash
 cd backend
 npm install
-```
-
-### 2. Configure environment
-Create `.env` in `backend` using `.env.example`:
-
-```env
-PORT=5000
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_strong_secret
-JWT_EXPIRES_IN=7d
-```
-
-### 3. Run the server
-```bash
 npm run dev
 ```
 
-Server starts at `http://localhost:5000`.
+## Local Keycloak Demo
 
-## Member Contributions (Phase 1 and Phase 2)
+This repo includes a local Keycloak setup for delegated authentication:
 
-### Anmol Kashyap
-- Designed and implemented core data models and schema relationships for properties, applications, leases, maintenance, and payments.
-- Added schema-level validation rules and indexing strategy for query performance.
-- Supported backend business-rule validation for data lifecycle operations.
+```bash
+docker compose -f docker-compose.keycloak.yml up -d
+```
 
-### Seher Ugurlu
-- Structured backend project architecture and route organization (routes, controllers, models, middleware).
-- Implemented and refined centralized error handling and API response patterns.
-- Helped define endpoint behavior and integration flow for Phase 1 foundation and Phase 2 updates.
+Local Keycloak details:
 
-### Serena Nina Omondi
-- Developed authentication and authorization flow using JWT, including secure access to protected resources.
-- Implemented role-based route protection and unauthorized-action rejection logic.
-- Strengthened security-focused backend validation and protected-route behavior.
+- realm: `lakeshore`
+- client: `property-rental-app`
+- admin console: `http://localhost:8080/admin`
+- admin login: `admin / admin`
+- seeded users:
+  - `manager1 / Manager123!`
+  - `tenant1 / Tenant123!`
+  - `maintenance1 / Maint123!`
 
-### Peter Morgante
-- Led business-case definition and requirement mapping from project specification to implementation.
-- Coordinated workflow coverage across application, lease, maintenance, and payment modules.
-- Managed repository progress and phase alignment to ensure completion through Phase 2.
+The backend `.env` is already configured for this local Keycloak setup.
 
-## Next Milestone
+## Verification Scripts
 
-Phase 3 will add:
-- React frontend integration
-- End-to-end frontend-backend connectivity
-- Deployment and production configuration
+From `backend`:
+
+```bash
+npm run verify:jwt
+npm run verify:keycloak-data
+npm run verify:submission
+```
+
+What they cover:
+
+- `verify:jwt` runs a full embedded-auth workflow smoke test
+- `verify:keycloak-data` proves the no-provisioning Keycloak data path works
+- `verify:submission` runs both checks back to back
+
+## Postman
+
+Import these files into Postman:
+
+- `postman/LakeshoreCondoManagement.postman_collection.json`
+- `postman/LakeshoreCondoManagement.local.postman_environment.json`
+
+They provide ready-made requests for JWT mode and Keycloak mode endpoints.
+
+## Submission Notes
+
+This backend now satisfies the course Phase II backend requirements and the added delegated-authentication requirement:
+
+- Embedded JWT authentication and authorization are implemented
+- Delegated Keycloak authentication and authorization are implemented
+- Keycloak mode does not provision users into MongoDB
+- Role-based business workflows remain functional in both modes
+- Centralized error handling and backend validation are present
+
+## Verification Performed
+
+Locally verified in JWT mode:
+
+- tenant registration
+- privileged self-registration rejection
+- manager login
+- manager-created staff account
+- property creation
+- application submission and approval
+- lease creation from approved application
+- maintenance request creation and assignment
+- payment creation and tenant-scoped payment visibility
+
+Locally verified at the data layer for Keycloak mode:
+
+- property, application, lease, and maintenance records can be stored using external identity snapshots
+- Keycloak tenant workflows do not require a MongoDB `User` document
+- no Keycloak user was provisioned to the `User` collection during the check
+
+See [KEYCLOAK.md](KEYCLOAK.md) for Keycloak setup details and [PHASE_2_PLUS_IMPLEMENTATION.md](PHASE_2_PLUS_IMPLEMENTATION.md) for the implementation summary.

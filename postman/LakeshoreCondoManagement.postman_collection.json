@@ -1,0 +1,332 @@
+{
+  "info": {
+    "_postman_id": "2d6d6e24-3bd9-4a48-bde7-3c781dcb40ba",
+    "name": "Lakeshore Condo Management",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "managerToken", "value": "" },
+    { "key": "tenantToken", "value": "" },
+    { "key": "keycloakToken", "value": "" },
+    { "key": "propertyId", "value": "" },
+    { "key": "applicationId", "value": "" },
+    { "key": "leaseId", "value": "" },
+    { "key": "maintenanceId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Tenant",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Postman Tenant\",\n  \"email\": \"tenant@example.com\",\n  \"password\": \"Tenant123!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/register"
+          }
+        },
+        {
+          "name": "Login Manager",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"manager@example.com\",\n  \"password\": \"Manager123!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Login Tenant",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"tenant@example.com\",\n  \"password\": \"Tenant123!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Create Staff User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{managerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Maintenance Staff\",\n  \"email\": \"maintenance@example.com\",\n  \"password\": \"Maint123!\",\n  \"role\": \"MAINTENANCE\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/users"
+          }
+        },
+        {
+          "name": "Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tenantToken}}" }
+            ],
+            "url": "{{baseUrl}}/api/auth/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Properties",
+      "item": [
+        {
+          "name": "Create Property",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{managerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Unit 201\",\n  \"address\": \"100 Lakeshore Blvd\",\n  \"city\": \"Toronto\",\n  \"rentAmount\": 1800\n}"
+            },
+            "url": "{{baseUrl}}/api/properties"
+          }
+        },
+        {
+          "name": "List Properties",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/properties"
+          }
+        },
+        {
+          "name": "Get Property",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/properties/{{propertyId}}"
+          }
+        },
+        {
+          "name": "Update Property",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{managerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rentAmount\": 1900,\n  \"isActive\": true\n}"
+            },
+            "url": "{{baseUrl}}/api/properties/{{propertyId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Applications",
+      "item": [
+        {
+          "name": "Create Application",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{tenantToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"property\": \"{{propertyId}}\",\n  \"monthlyIncome\": 4200,\n  \"message\": \"Interested in this unit\"\n}"
+            },
+            "url": "{{baseUrl}}/api/applications"
+          }
+        },
+        {
+          "name": "List Applications",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tenantToken}}" }
+            ],
+            "url": "{{baseUrl}}/api/applications"
+          }
+        },
+        {
+          "name": "Approve Application",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{managerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"APPROVED\"\n}"
+            },
+            "url": "{{baseUrl}}/api/applications/{{applicationId}}/status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Leases",
+      "item": [
+        {
+          "name": "Create Lease From Application",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{managerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"applicationId\": \"{{applicationId}}\",\n  \"startDate\": \"2026-05-01\",\n  \"endDate\": \"2027-04-30\"\n}"
+            },
+            "url": "{{baseUrl}}/api/leases"
+          }
+        },
+        {
+          "name": "List Leases",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tenantToken}}" }
+            ],
+            "url": "{{baseUrl}}/api/leases"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Maintenance",
+      "item": [
+        {
+          "name": "Create Maintenance Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{tenantToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lease\": \"{{leaseId}}\",\n  \"title\": \"Leaky Faucet\",\n  \"description\": \"Kitchen faucet is leaking\"\n}"
+            },
+            "url": "{{baseUrl}}/api/maintenance"
+          }
+        },
+        {
+          "name": "List Maintenance",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{managerToken}}" }
+            ],
+            "url": "{{baseUrl}}/api/maintenance"
+          }
+        },
+        {
+          "name": "Update Maintenance Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{managerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"IN_PROGRESS\"\n}"
+            },
+            "url": "{{baseUrl}}/api/maintenance/{{maintenanceId}}/status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Create Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{managerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lease\": \"{{leaseId}}\",\n  \"amount\": 1800,\n  \"method\": \"BANK_TRANSFER\"\n}"
+            },
+            "url": "{{baseUrl}}/api/payments"
+          }
+        },
+        {
+          "name": "List Payments",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{tenantToken}}" }
+            ],
+            "url": "{{baseUrl}}/api/payments"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Keycloak",
+      "item": [
+        {
+          "name": "Keycloak Info",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/keycloak/info"
+          }
+        },
+        {
+          "name": "Keycloak Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{keycloakToken}}" }
+            ],
+            "url": "{{baseUrl}}/api/keycloak/me"
+          }
+        },
+        {
+          "name": "Keycloak Verify Token",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{keycloakToken}}" }
+            ],
+            "url": "{{baseUrl}}/api/keycloak/verify-token"
+          }
+        },
+        {
+          "name": "Keycloak Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{keycloakToken}}" }
+            ],
+            "url": "{{baseUrl}}/api/keycloak/logout"
+          }
+        }
+      ]
+    }
+  ]
+}
