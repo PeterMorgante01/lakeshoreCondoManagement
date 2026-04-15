@@ -86,7 +86,7 @@ Important design choice:
 
 ## API Summary
 
-Implemented endpoints: 23
+Implemented endpoints: 22 API routes (+ 1 root status endpoint: `GET /`)
 
 ### Auth
 
@@ -187,7 +187,7 @@ Local Keycloak details:
   - `tenant1 / Tenant123!`
   - `maintenance1 / Maint123!`
 
-The backend `.env` is already configured for this local Keycloak setup.
+Configure `backend/.env` with the local Keycloak values above (copy from `backend/.env.example` if needed).
 
 ## Verification Scripts
 
