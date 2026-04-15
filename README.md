@@ -2,6 +2,22 @@
 
 Secure backend for a condo and rental operations platform built for the Modern Web Technologies course project.
 
+## Team Contributions
+
+Project group members:
+
+- Anmol Kashyap
+- Seher Ugurlu
+- Serena Nina Omondi
+- Peter Morgante
+
+Contribution tasks:
+
+- Anmol Kashyap: Backend security implementation, JWT and Keycloak authentication flows, role-based authorization enforcement.
+- Seher Ugurlu: Data modeling and schema validation design across core collections and business entities.
+- Serena Nina Omondi: API testing coverage using Postman, validation scenarios, and workflow verification support.
+- Peter Morgante: Business case definition, project planning, and backend foundation setup for the initial phase.
+
 ## Project Status
 
 - Phase I: Completed
