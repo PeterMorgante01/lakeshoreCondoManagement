@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 
 const Application = require("../models/Application");
 const Lease = require("../models/Lease");
+const MaintenanceRequest = require("../models/MaintenanceRequest");
+const Payment = require("../models/Payment");
 const Property = require("../models/Property");
 const User = require("../models/User");
 const { APPLICATION_STATUS, ROLES } = require("../utils/constants");
@@ -207,6 +209,31 @@ exports.getLeases = async (req, res, next) => {
     }));
 
     return ok(res, { count: normalizedLeases.length, leases: normalizedLeases });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+exports.deleteLease = async (req, res, next) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({ error: "Invalid lease id" });
+    }
+
+    const lease = await Lease.findById(req.params.id);
+
+    if (!lease) {
+      return res.status(404).json({ error: "Lease not found" });
+    }
+
+    await Promise.all([
+      MaintenanceRequest.deleteMany({ lease: lease._id }),
+      Payment.deleteMany({ lease: lease._id })
+    ]);
+
+    await lease.deleteOne();
+
+    return ok(res, { leaseId: req.params.id }, "Lease deleted");
   } catch (err) {
     return next(err);
   }

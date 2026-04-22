@@ -5,5 +5,6 @@ const { ROLES } = require("../utils/constants");
 
 router.post("/", protect, authorize(ROLES.MANAGER), c.createLease);
 router.get("/", protect, c.getLeases);
+router.delete("/:id", protect, authorize(ROLES.MANAGER), c.deleteLease);
 
 module.exports = router;

@@ -11,5 +11,6 @@ router.patch(
 	authorize(ROLES.MANAGER, ROLES.MAINTENANCE),
 	c.updateMaintenanceStatus
 );
+router.delete("/:id", protect, authorize(ROLES.MANAGER), c.deleteMaintenance);
 
 module.exports = router;

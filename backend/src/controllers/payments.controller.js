@@ -73,3 +73,23 @@ exports.getPayments = async (req, res, next) => {
     return next(err);
   }
 };
+
+exports.deletePayment = async (req, res, next) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({ error: "Invalid payment id" });
+    }
+
+    const payment = await Payment.findById(req.params.id);
+
+    if (!payment) {
+      return res.status(404).json({ error: "Payment not found" });
+    }
+
+    await payment.deleteOne();
+
+    return ok(res, { paymentId: req.params.id }, "Payment deleted");
+  } catch (err) {
+    return next(err);
+  }
+};

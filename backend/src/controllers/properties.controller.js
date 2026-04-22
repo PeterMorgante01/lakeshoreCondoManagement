@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const Application = require("../models/Application");
+const Lease = require("../models/Lease");
 const Property = require("../models/Property");
 const { ok, created } = require("../utils/response");
 const { buildIdentitySnapshot, getLegacyUserId } = require("../utils/authIdentity");
@@ -84,6 +86,36 @@ exports.updateProperty = async (req, res, next) => {
     }
 
     return ok(res, { property }, "Property updated");
+  } catch (err) {
+    return next(err);
+  }
+};
+
+exports.deleteProperty = async (req, res, next) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({ error: "Invalid property id" });
+    }
+
+    const [property, linkedApplication, linkedLease] = await Promise.all([
+      Property.findById(req.params.id),
+      Application.findOne({ property: req.params.id }).select("_id"),
+      Lease.findOne({ property: req.params.id }).select("_id")
+    ]);
+
+    if (!property) {
+      return res.status(404).json({ error: "Property not found" });
+    }
+
+    if (linkedApplication || linkedLease) {
+      return res.status(409).json({
+        error: "Property cannot be deleted while related applications or leases exist"
+      });
+    }
+
+    await property.deleteOne();
+
+    return ok(res, { propertyId: req.params.id }, "Property deleted");
   } catch (err) {
     return next(err);
   }

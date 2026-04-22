@@ -1,0 +1,21 @@
+export const ROLES = {
+  TENANT: "TENANT",
+  MANAGER: "MANAGER",
+  MAINTENANCE: "MAINTENANCE"
+};
+
+export const APPLICATION_STATUSES = [
+  "SUBMITTED",
+  "UNDER_REVIEW",
+  "APPROVED",
+  "REJECTED"
+];
+
+export const MAINTENANCE_STATUSES = [
+  "OPEN",
+  "IN_PROGRESS",
+  "RESOLVED",
+  "CLOSED"
+];
+
+export const PAYMENT_METHODS = ["CARD", "BANK_TRANSFER", "CASH"];

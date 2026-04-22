@@ -7,5 +7,6 @@ router.post("/", protect, authorize(ROLES.MANAGER), c.createProperty);
 router.get("/", c.getAllProperties);
 router.get("/:id", c.getPropertyById);
 router.patch("/:id", protect, authorize(ROLES.MANAGER), c.updateProperty);
+router.delete("/:id", protect, authorize(ROLES.MANAGER), c.deleteProperty);
 
 module.exports = router;

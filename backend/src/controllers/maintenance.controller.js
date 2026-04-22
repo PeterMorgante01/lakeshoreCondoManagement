@@ -228,3 +228,23 @@ exports.updateMaintenanceStatus = async (req, res, next) => {
     return next(err);
   }
 };
+
+exports.deleteMaintenance = async (req, res, next) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({ error: "Invalid maintenance request id" });
+    }
+
+    const maintenance = await MaintenanceRequest.findById(req.params.id);
+
+    if (!maintenance) {
+      return res.status(404).json({ error: "Maintenance request not found" });
+    }
+
+    await maintenance.deleteOne();
+
+    return ok(res, { maintenanceId: req.params.id }, "Maintenance request deleted");
+  } catch (err) {
+    return next(err);
+  }
+};

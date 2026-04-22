@@ -95,3 +95,23 @@ exports.updateApplicationStatus = async (req, res, next) => {
     return next(err);
   }
 };
+
+exports.deleteApplication = async (req, res, next) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({ error: "Invalid application id" });
+    }
+
+    const application = await Application.findById(req.params.id);
+
+    if (!application) {
+      return res.status(404).json({ error: "Application not found" });
+    }
+
+    await application.deleteOne();
+
+    return ok(res, { applicationId: req.params.id }, "Application deleted");
+  } catch (err) {
+    return next(err);
+  }
+};
